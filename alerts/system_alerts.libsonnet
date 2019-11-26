@@ -163,30 +163,6 @@ local utils = import 'utils.libsonnet';
               message: 'API server is returning errors for {{ $value }}% of requests for {{ $labels.verb }} {{ $labels.resource }} {{ $labels.subresource }}.',
             },
           },
-          {
-            alert: 'KubeClientCertificateExpiration',
-            expr: |||
-              apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and histogram_quantile(0.01, sum by (job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{%(kubeApiserverSelector)s}[5m]))) < %(certExpirationWarningSeconds)s
-            ||| % $._config,
-            labels: {
-              severity: 'warning',
-            },
-            annotations: {
-              message: 'A client certificate used to authenticate to the apiserver is expiring in less than %s.' % (utils.humanizeSeconds($._config.certExpirationWarningSeconds)),
-            },
-          },
-          {
-            alert: 'KubeClientCertificateExpiration',
-            expr: |||
-              apiserver_client_certificate_expiration_seconds_count{job="apiserver"} > 0 and histogram_quantile(0.01, sum by (job, le) (rate(apiserver_client_certificate_expiration_seconds_bucket{%(kubeApiserverSelector)s}[5m]))) < %(certExpirationCriticalSeconds)s
-            ||| % $._config,
-            labels: {
-              severity: 'critical',
-            },
-            annotations: {
-              message: 'A client certificate used to authenticate to the apiserver is expiring in less than %s.' % (utils.humanizeSeconds($._config.certExpirationCriticalSeconds)),
-            },
-          },
         ],
       },
     ],
